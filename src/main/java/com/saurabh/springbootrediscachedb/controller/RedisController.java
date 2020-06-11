@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,21 +21,14 @@ public class RedisController {
 	@Autowired
 	private RedisService redisService;
 
-	private ResponseVO responseVO = new ResponseVO();
-
 	@PostMapping("/student")
 	public ResponseVO save(@Valid @RequestBody Student student) {
+		ResponseVO responseVO = new ResponseVO();
 		try {
 			boolean status = redisService.save(student);
-			if (status) {
-				responseVO.setStatus(String.valueOf(status));
-				responseVO.setStatusCode(HttpStatus.CREATED.value());
-				responseVO.setMessage("SAVED_SUCCESSFULLY");
-			} else {
-				responseVO.setStatus(String.valueOf(status));
-				responseVO.setStatusCode(HttpStatus.BAD_REQUEST.value());
-				responseVO.setMessage("FAILED_TO_SAVE");
-			}
+			responseVO.setStatus(status ? HttpStatus.OK.name() : HttpStatus.BAD_REQUEST.name());
+			responseVO.setStatusCode(status ? HttpStatus.CREATED.value() : HttpStatus.BAD_REQUEST.value());
+			responseVO.setMessage(status ? "SAVED_SUCCESSFULLY" : "FAILED_TO_SAVE");
 		} catch (Exception ex) {
 			responseVO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
 			responseVO.setMessage("Due to some technical error.");
@@ -45,6 +39,7 @@ public class RedisController {
 
 	@GetMapping("/student/{id}")
 	public ResponseVO getStudentById(@PathVariable Integer id) {
+		ResponseVO responseVO = new ResponseVO();
 		try {
 			System.out.println("Searching by ID  : " + id);
 			Student student = redisService.getStudentById(id);
@@ -67,6 +62,23 @@ public class RedisController {
 			responseVO.setMessage("Due to some techincal error.");
 		}
 
+		return responseVO;
+	}
+
+	@PutMapping("/student")
+	public ResponseVO update(@Valid @RequestBody Student student) {
+		ResponseVO responseVO = new ResponseVO();
+		try {
+			boolean status = redisService.update(student);
+			responseVO.setStatus(status ? HttpStatus.OK.name() : HttpStatus.BAD_REQUEST.name());
+			responseVO.setStatusCode(status ? HttpStatus.OK.value() : HttpStatus.BAD_REQUEST.value());
+			responseVO.setMessage(status ? "UPDATED_SUCCESSFULLY" : "FAILED_TO_UPDATE");
+
+		} catch (Exception ex) {
+			responseVO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+			responseVO.setMessage("Due to some technical error.");
+			ex.printStackTrace();
+		}
 		return responseVO;
 	}
 

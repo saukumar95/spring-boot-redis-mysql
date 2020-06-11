@@ -17,28 +17,39 @@ public class RedisRepositoryImpl implements RedisRepository {
 	private String createStudent;
 	@Value("${GET_STUDENT}")
 	private String getStudent;
+	@Value("${UPDATE_STUDENT}")
+	private String updateStudent;
 
 	@Override
 	public boolean save(final Student student) {
-		boolean status = false;
 		try {
-			status = jdbcTemplate.update(createStudent, student.getId(), student.getName(), student.getClz()) > 0;
+			return jdbcTemplate.update(createStudent, student.getId(), student.getName(), student.getClz()) > 0;
 		} catch (DataAccessException dex) {
 			dex.printStackTrace();
+			return false;
 		}
-		return status;
 	}
 
 	@Override
 	public Student getStudentById(Integer id) {
-		Student student = null;
 		try {
 			System.out.println("Going to sleep for 5 Secs.. to simulate backend call.");
-			Thread.sleep(1000 * 20);
+			Thread.sleep(1000 * 5);
+			return jdbcTemplate.queryForObject(getStudent, new Object[] { id }, new StudentRowMapper());
 		} catch (DataAccessException | NullPointerException | InterruptedException nex) {
 			nex.printStackTrace();
+			return new Student();
 		}
-		return jdbcTemplate.queryForObject(getStudent, new Object[] { id }, new StudentRowMapper());
+	}
+
+	@Override
+	public boolean update(Student student) {
+		try {
+			return jdbcTemplate.update(updateStudent, student.getName(), student.getClz(), student.getId()) > 0;
+		} catch (DataAccessException dex) {
+			dex.printStackTrace();
+			return false;
+		}
 	}
 
 }

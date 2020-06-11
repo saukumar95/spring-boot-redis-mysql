@@ -32,4 +32,15 @@ public class RedisServiceImpl implements RedisService {
 		return student;
 	}
 
+	@Override
+	public boolean update(Student student) {
+		boolean status = false;
+		try {
+			status = redisRepository.update(student);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return status;
+	}
+
 }

@@ -15,4 +15,6 @@ public interface RedisRepository {
 
 	Student getStudentById(Integer id);
 
+	boolean update(Student student);
+
 }
